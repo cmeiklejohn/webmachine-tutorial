@@ -1,4 +1,5 @@
 -module(tweeter_wm_tweets_resource).
+-include("tweeter.hrl").
 
 -export([init/1,
          routes/0,
@@ -97,7 +98,7 @@ create_path(ReqData, Context) ->
 generate(Attributes) ->
     {struct, [{<<"tweet">>, {struct, Decoded}}]} =
                                         mochijson2:decode(Attributes),
-    Id = erlang:now(),
+    Id = ?TID,
     Message = proplists:get_value(<<"message">>, Decoded),
     Avatar = proplists:get_value(<<"avatar">>, Decoded),
     {Id, [{message, Message}, {avatar, Avatar}]}.
@@ -178,11 +179,16 @@ stream() ->
             {Body, fun stream/0}
     end.
 
+-ifdef(monotonic_time).
+time_to_timestamp(ID) ->
+    list_to_binary(integer_to_list(ID)).
+-else.
 %% @doc Convert time to unix time.
 -spec time_to_timestamp({integer(), integer(), integer()}) -> binary().
 time_to_timestamp({Mega, Sec, Micro}) ->
     Time = Mega * 1000000 * 1000000 + Sec * 1000000 + Micro,
     list_to_binary(integer_to_list(Time)).
+-endif.
 
 %% @doc Encode a tweet.
 -spec encode({{integer(), integer(), integer()}, list({atom(), binary()})}) ->

@@ -1,0 +1,5 @@
+-ifdef(monotonic_time).
+-define(TID, erlang:unique_integer([monotonic])).
+-else.
+-define(TID, erlang:now()).
+-endif.

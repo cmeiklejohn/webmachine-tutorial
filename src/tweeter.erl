@@ -8,7 +8,10 @@ ensure_started(App) ->
         ok ->
             ok;
         {error, {already_started, App}} ->
-            ok
+            ok;
+        {error, {not_started, Dep}} ->
+            ensure_started(Dep),
+            ensure_started(App)
     end.
 
 %% @doc Starts the app for inclusion in a supervisor tree
